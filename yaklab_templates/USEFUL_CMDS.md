@@ -50,8 +50,8 @@ setup, VLANs, etc.
 
 ## Teardown undercloud
 
-    ir virsh --host-address localhost --host-key ~/.ssh/id_rsa --kill true
-    ir virsh --host-address localhost --host-key ~/.ssh/id_rsa --cleanup true
+    ir virsh --host-address localhost --host-key ~/.ssh/id_rsa --topology-network bridged_undercloud --kill true
+    ir virsh --host-address localhost --host-key ~/.ssh/id_rsa --topology-network bridged_undercloud --cleanup true
 
 # deploy overcloud
 
