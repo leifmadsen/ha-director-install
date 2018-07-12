@@ -46,7 +46,7 @@ setup, VLANs, etc.
 
     ir tripleo-undercloud -vv --version queens --images-task=import \
         --images-url=https://images.rdoproject.org/queens/rdo_trunk/current-tripleo/stable/ \
-        --disk-pool /home/images/infrared/overcloud --config-file ~/configs/yaklab_templates/undercloud.conf
+        --disk-pool /home/images/infrared/overcloud --config-file ~/cloud-configs/yaklab_templates/undercloud.conf
 
 ## Teardown undercloud
 
