@@ -32,7 +32,7 @@ setup, VLANs, etc.
     infrared activate plugin/virsh
 
     # copy in our undercloud and network configurations
-    cp ~/cloud-configs/yaklab_templates/plugins/virsh/vars/topology/network/bridged_undercloud.conf \
+    cp ~/cloud-configs/yaklab_templates/plugins/virsh/vars/topology/network/bridged_undercloud.yml \
         ./plugins/virsh/vars/topology/network/
 
     ir virsh --host-address localhost --host-key ~/.ssh/id_rsa \
