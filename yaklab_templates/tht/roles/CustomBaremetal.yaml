@@ -1,0 +1,33 @@
+- name: CustomBaremetal
+  description: |
+    Baremetal node role with few OpenStack services for OpenShift
+  CountDefault: 1
+  FlavorDefault: custombaremetal
+  networks:
+    - External
+    - InternalApi
+    - Tenant
+  default_route_networks: ['External']
+  HostnameFormatDefault: '%stackname%-shift-%index%'
+  ServicesDefault:
+    - OS::TripleO::Services::Aide
+    - OS::TripleO::Services::AuditD
+    - OS::TripleO::Services::CACerts
+    - OS::TripleO::Services::CertmongerUser
+    - OS::TripleO::Services::Collectd
+    - OS::TripleO::Services::Ipsec
+    - OS::TripleO::Services::Iscsid
+    - OS::TripleO::Services::Kernel
+    - OS::TripleO::Services::LoginDefs
+    - OS::TripleO::Services::Ntp
+    - OS::TripleO::Services::ContainersLogrotateCrond
+    - OS::TripleO::Services::Rhsm
+    - OS::TripleO::Services::RsyslogSidecar
+    - OS::TripleO::Services::Securetty
+    - OS::TripleO::Services::Snmp
+    - OS::TripleO::Services::Sshd
+    - OS::TripleO::Services::Timezone
+    - OS::TripleO::Services::TripleoFirewall
+    - OS::TripleO::Services::TripleoPackages
+    - OS::TripleO::Services::Tuned
+    - OS::TripleO::Services::Ptp

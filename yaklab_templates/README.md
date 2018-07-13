@@ -90,11 +90,22 @@ We'll make use of the autodiscovery mechanism instead of building a static
 
     openstack overcloud node introspect --all-manageable
 
+## Generate custom roles
+
+
+    openstack overcloud roles generate --roles-path ~/roles \
+        -o ~/tht/roles_data.yaml Controller Compute CustomBaremetal
+
+    openstack flavor create --id auto custombaremetal
+    openstack flavor set --property "cpu_arch"="x86_64" \
+        --property "capabilities:boot_option"="local" \
+        --property "capabilities:profile"="custombaremetal" custombaremetal
+
 ## Tag nodes for roles
 
-    openstack baremetal node set --property capabilities='node:controller-0,boot_option:local' <UUID>
-    openstack baremetal node set --property capabilities='node:compute-0,boot_option:local' <UUID>
-
+    openstack baremetal node set --property capabilities='profile:control,boot_option:local' <UUID>
+    openstack baremetal node set --property capabilities='profile:compute,boot_option:local' <UUID>
+    openstack baremetal node set --property capabilities='profile:custombaremetal,boot_option:local' <UUID>
 
 ## Configure TripleO Heat Templates
 
@@ -125,9 +136,17 @@ We'll make use of the autodiscovery mechanism instead of building a static
     # create environment file for heat
     openstack overcloud container image prepare \
         --namespace 192.168.25.252:8787/tripleoqueens \
-        --env-file ~/docker_registry_heat.yaml
+        --env-file ~/docker_registry.yaml
+
+    # allow for an insecure docker registry
+    echo "  DockerInsecureRegistryAddress: 192.168.25.252:8787" >> docker_registry.yaml
 
 ## Deploy overcloud
 
     cd ~
+
+    # mark the managed nodes as available for deployment (can also use UUID)
+    openstack overcloud node provide --all-manageable
+
+    # deploy the cloud
     openstack overcloud deploy --templates ./tht/ -e ~/docker_registry.yaml
