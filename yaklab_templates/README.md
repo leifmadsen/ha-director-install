@@ -40,6 +40,17 @@ setup, VLANs, etc.
         --disk-pool /home/images/infrared \
         --image-url https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
 
+> **WARNING**
+>
+> I've had issues with networking coming up properly in the undercloud before
+> some commands are executed by Ansible. Not sure what the delay is, but adding
+> a delay in the `deploy.yml` file before the undercloud is deployed seems to
+> help (I used 60 seconds in a `shell` module).
+>
+> Additionally, sometimes the upstream tarfile images weren't pulling properly.
+> Pre-populating the `/home/stack` directory with the `.tar.` files from the
+> `images-url` below is a work around.
+
     # this may fail simply because it seems to have an issue after the reboot
     # where the network doesn't seem to come up in time, and the `yum update`
     # fails in the undercloud setup/installation
