@@ -97,15 +97,17 @@ We'll make use of the autodiscovery mechanism instead of building a static
         -o ~/tht/roles_data.yaml Controller Compute CustomBaremetal
 
     openstack flavor create --id auto custombaremetal
-    openstack flavor set --property "cpu_arch"="x86_64" \
+    openstack flavor set \
         --property "capabilities:boot_option"="local" \
-        --property "capabilities:profile"="custombaremetal" custombaremetal
+        --property "capabilities:profile"="custombaremetal" \
+        --property "resources"="CUSTOM_BAREMETAL=1" \
+        custombaremetal
 
 ## Tag nodes for roles
 
     openstack baremetal node set --property capabilities='profile:control,boot_option:local' <UUID>
     openstack baremetal node set --property capabilities='profile:compute,boot_option:local' <UUID>
-    openstack baremetal node set --property capabilities='profile:custombaremetal,boot_option:local' <UUID>
+    openstack baremetal node set --property capabilities='profile:baremetal,boot_option:local' <UUID>
 
 ## Configure TripleO Heat Templates
 
