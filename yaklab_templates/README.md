@@ -112,15 +112,27 @@ We'll make use of the autodiscovery mechanism instead of building a static
 ## Configure TripleO Heat Templates
 
     cd ~
+
+    # get our local configuration changes, custom roles, etc
     git clone https://github.com/leifmadsen/ha-director-install cloud-configs
     cd ~/cloud-configs
     git fetch --all && git checkout origin/ir-osp13-yaklab
-    cd ~
 
+    # create configuration from default templates
+    cd ~
     cp -r /usr/share/openstack-tripleo-heat-templates ~/tht/
     cd ~/tht/
+
+    # create the network ranges and vlans
     cp ~/cloud-configs/yaklab_templates/tht/network_data.yaml ~/tht/
+
+    # change the primary nic from nic1 (provisioning) to nic2 (everything else)
     sed -i -e 's/nic1/nic2/g' network/config/single-nic-vlans/role.role.j2.yaml
+
+    # modify the environments/network-environment.j2.yaml to point the
+    ControlPlaneDefaultRoute and EC2MetaData to the undercloud IP address
+
+    # process and generate heat templates from jinja templates
     ./tools/process-templates.py
 
 ## Import containers to local registry
