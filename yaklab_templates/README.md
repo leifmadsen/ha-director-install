@@ -126,9 +126,6 @@ We'll make use of the autodiscovery mechanism instead of building a static
     # create the network ranges and vlans
     cp ~/cloud-configs/yaklab_templates/tht/network_data.yaml ~/tht/
 
-    # change the primary nic from nic1 (provisioning) to nic2 (everything else)
-    sed -i -e 's/nic1/nic2/g' network/config/single-nic-vlans/role.role.j2.yaml
-
     # modify the environments/network-environment.j2.yaml to point the
     ControlPlaneDefaultRoute and EC2MetaData to the undercloud IP address
 
