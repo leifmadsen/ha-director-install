@@ -61,6 +61,10 @@ setup, VLANs, etc.
 
 ## Teardown undercloud
 
+Sometimes this fails as well. I've been finding that `--cleanup true` seems to
+work most of the time. If it doesn't work, then try using `--kill true` which I
+find fails, but it sets up `--cleanup true` to work, so... .shrug
+
     ir virsh --host-address localhost --host-key ~/.ssh/id_rsa --topology-network bridged_undercloud --kill true
     ir virsh --host-address localhost --host-key ~/.ssh/id_rsa --topology-network bridged_undercloud --cleanup true
 
@@ -96,20 +100,30 @@ We'll make use of the autodiscovery mechanism instead of building a static
     openstack overcloud roles generate --roles-path ~/roles \
         -o ~/tht/roles_data.yaml Controller Compute CustomBaremetal
 
-    openstack flavor create --id auto custombaremetal
-    openstack flavor set \
-        --property "capabilities:boot_option"="local" \
-        --property "capabilities:profile"="custombaremetal" \
-        --property "resources"="CUSTOM_BAREMETAL=1" \
-        custombaremetal
+> **Create custombaremetal flavor**
+>
+> NOTE: this is totally unnecessary. There is a `baremetal` flavor already
+>       setup for the specific purpose of being used by default by custom roles
+>
+>    openstack flavor create --id auto custombaremetal
+>    openstack flavor set \
+>        --property "capabilities:boot_option"="local" \
+>        --property "capabilities:profile"="custombaremetal" \
+>        --property "resources"="CUSTOM_BAREMETAL=1" \
+>        custombaremetal
 
 ## Tag nodes for roles
+
+_You don't need to do this unless you are trying to set specific nodes to
+particular roles._
 
     openstack baremetal node set --property capabilities='profile:control,boot_option:local' <UUID>
     openstack baremetal node set --property capabilities='profile:compute,boot_option:local' <UUID>
     openstack baremetal node set --property capabilities='profile:baremetal,boot_option:local' <UUID>
 
 ## Configure TripleO Heat Templates
+
+### Setup main directories
 
     cd ~
 
@@ -118,19 +132,34 @@ We'll make use of the autodiscovery mechanism instead of building a static
     cd ~/cloud-configs
     git fetch --all && git checkout origin/ir-osp13-yaklab
 
+
     # create configuration from default templates
     cd ~
     cp -r /usr/share/openstack-tripleo-heat-templates ~/tht/
+
+    mkdir ~/roles/
+    cp ~/tht/roles/* ~/roles/
+    cp ~/cloud-configs/tht/roles/CustomBaremetal.yaml ~/roles/
+
+### Generate the custom roles data
+
+    openstack overcloud roles generate --roles-path ~/roles/ -o tht/roles_data.yaml Controller CustomBaremetal
+
+### Process templates
+
     cd ~/tht/
 
     # create the network ranges and vlans
     cp ~/cloud-configs/yaklab_templates/tht/network_data.yaml ~/tht/
 
     # modify the environments/network-environment.j2.yaml to point the
-    ControlPlaneDefaultRoute and EC2MetaData to the undercloud IP address
+    # ControlPlaneDefaultRoute and EC2MetaData to the undercloud IP address
 
     # process and generate heat templates from jinja templates
-    ./tools/process-templates.py
+    # I also put the processed templates into an alternate directory just to
+    # keep things clean
+    mkdir ~/tht.built/
+    ./tools/process-templates.py -r roles_data.yaml -n network_data.yaml -o ~/tht.built/
 
 ## Import containers to local registry
 
@@ -159,5 +188,14 @@ We'll make use of the autodiscovery mechanism instead of building a static
     # mark the managed nodes as available for deployment (can also use UUID)
     openstack overcloud node provide --all-manageable
 
-    # deploy the cloud
-    openstack overcloud deploy --templates ./tht/ -e ~/docker_registry.yaml
+    # deploy the cloud using single nic VLANs
+    openstack overcloud deploy --templates ./tht.built/ \
+        --roles-file ./tht.built/roles_data.yaml \
+        -e ./tht.built/environments/docker.yaml \
+        -e ./tht.built/environments/network-isolation.yaml \
+        -e ./tht.built/environments/network-environment.yaml \
+        -e ~/docker_registry.yaml
+
+# Bring down the overcloud
+
+    openstack stack delete overcloud --yes      # no warning :)
