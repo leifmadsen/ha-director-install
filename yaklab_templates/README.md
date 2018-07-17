@@ -105,12 +105,12 @@ We'll make use of the autodiscovery mechanism instead of building a static
 > NOTE: this is totally unnecessary. There is a `baremetal` flavor already
 >       setup for the specific purpose of being used by default by custom roles
 >
->    openstack flavor create --id auto custombaremetal
->    openstack flavor set \
->        --property "capabilities:boot_option"="local" \
->        --property "capabilities:profile"="custombaremetal" \
->        --property "resources"="CUSTOM_BAREMETAL=1" \
->        custombaremetal
+>     openstack flavor create --id auto custombaremetal
+>     openstack flavor set \
+>         --property "capabilities:boot_option"="local" \
+>         --property "capabilities:profile"="custombaremetal" \
+>         --property "resources"="CUSTOM_BAREMETAL=1" \
+>         custombaremetal
 
 ## Tag nodes for roles
 
