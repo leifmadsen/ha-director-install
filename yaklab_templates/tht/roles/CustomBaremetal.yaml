@@ -7,6 +7,7 @@
     - InternalApi
     - Tenant
   default_route_networks: ['External']
+  disable_upgrade_deployment: True
   HostnameFormatDefault: '%stackname%-shift-%index%'
   ServicesDefault:
     - OS::TripleO::Services::Collectd
